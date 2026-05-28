@@ -80,8 +80,8 @@ export default function LandingPage() {
       vy: number;
 
       constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
+        this.x = Math.random() * (canvas?.width ?? 0);
+        this.y = Math.random() * (canvas?.height ?? 0);
         this.size = Math.random() * 2 + 0.5;
         this.density = (Math.random() * 30) + 1;
         this.vx = (Math.random() - 0.5) * 1;
@@ -118,8 +118,8 @@ export default function LandingPage() {
         }
 
         // Rebater nas bordas da tela
-        if (this.x < 0 || this.x > canvas.width) this.vx = -this.vx;
-        if (this.y < 0 || this.y > canvas.height) this.vy = -this.vy;
+        if (this.x < 0 || this.x > (canvas?.width ?? 0)) this.vx = -this.vx;
+        if (this.y < 0 || this.y > (canvas?.height ?? 0)) this.vy = -this.vy;
       }
     }
 
@@ -240,7 +240,7 @@ export default function LandingPage() {
                 Lock the <br /><span className="text-[#F6C97D] italic">Bounty</span>.
               </h2>
               <p className="text-[#FFF8D3]/60 text-lg md:text-xl font-light leading-relaxed mb-8">
-                Sponsors don't need to trust developers, and developers don't need to trust sponsors. Funds are locked in our impenetrable Polkadot Escrow Contract.
+                Sponsors don&apos;t need to trust developers, and developers don&apos;t need to trust sponsors. Funds are locked in our impenetrable Polkadot Escrow Contract.
               </p>
               <ul className="flex flex-col gap-4 text-sm text-[#FFF8D3]/80">
                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-[#F6C97D]"></span> Instant Global Broadcasting</li>
@@ -320,7 +320,7 @@ export default function LandingPage() {
                 Trustless <br /><span className="text-[#F6C97D] italic">Payouts</span>.
               </h2>
               <p className="text-[#FFF8D3]/60 text-lg md:text-xl font-light leading-relaxed mb-8">
-                The moment the AI merges the Pull Request, a webhook is fired to the blockchain. The Escrow smart contract releases the funds straight to the developer's wallet. Zero humans involved.
+                The moment the AI merges the Pull Request, a webhook is fired to the blockchain. The Escrow smart contract releases the funds straight to the developer&apos;s wallet. Zero humans involved.
               </p>
               <a href="/login" className="inline-block px-10 py-4 border border-[#F6C97D] text-[#F6C97D] font-bold uppercase tracking-[0.2em] text-xs rounded-xl transition-all hover:bg-[#F6C97D] hover:text-[#0C1A54]">
                 Experience AutoDot

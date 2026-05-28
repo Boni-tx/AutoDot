@@ -132,7 +132,7 @@ export default function LoginPage() {
             </div>
             <h2 className="text-2xl font-light text-[#FFF8D3] mb-2 text-center">Check your inbox</h2>
             <p className="text-[#FFF8D3]/60 text-sm text-center leading-relaxed mb-8">
-              We've sent a verification link to <br/>
+              We&apos;ve sent a verification link to <br/>
               <span className="text-[#F6C97D] font-medium">{email}</span>
             </p>
             
