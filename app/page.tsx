@@ -143,26 +143,33 @@ export default function LandingPage() {
     };
   }, []);
 
-  // Lógica da Contagem dos POTS
+  // Lógica da Contagem dos POTS - Animação fluida com easing
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isStep1Visible) {
-      let current = 0;
-      const end = 5000;
-      const step = 80; // Velocidade da contagem
-      timer = setInterval(() => {
-        current += step;
-        if (current >= end) {
-          setPotCount(end);
-          clearInterval(timer);
-        } else {
-          setPotCount(current);
-        }
-      }, 16);
-    } else {
-      setPotCount(0); // Zera quando não visualizado
+    if (!isStep1Visible) {
+      setPotCount(0);
+      return;
     }
-    return () => clearInterval(timer);
+
+    const end = 5000;
+    const duration = 2000; // 2 segundos para chegar a 5000
+    const startTime = performance.now();
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Easing function - easeOutExpo para movimento mais natural
+      const easeOutExpo = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+
+      const currentCount = Math.floor(easeOutExpo * end);
+      setPotCount(currentCount);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
   }, [isStep1Visible]);
 
   return (

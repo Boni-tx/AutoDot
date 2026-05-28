@@ -10,6 +10,7 @@ interface BountyItem {
   status: 'Awaiting PR' | 'AI Reviewing' | 'Completed';
   applicants: number;
   date: string;
+  completedAt?: number; // timestamp quando foi completada
 }
 
 interface TransactionItem {
@@ -47,6 +48,9 @@ export default function BusinessDashboard() {
   const [animatedPot, setAnimatedPot] = useState(0);
   const [animatedActive, setAnimatedActive] = useState(0);
 
+  // Contador de tarefas completadas (persistente)
+  const [completedCount, setCompletedCount] = useState(0);
+
   // Inicialização
   useEffect(() => {
     const defaultBounties: BountyItem[] = [
@@ -65,6 +69,12 @@ export default function BusinessDashboard() {
       localStorage.setItem('autodot_bounties', JSON.stringify(defaultBounties));
     }
     setTransactions(defaultTransactions);
+
+    // Carrega contador de tarefas completadas
+    const savedCompletedCount = localStorage.getItem('autodot_completed_count');
+    if (savedCompletedCount) {
+      setCompletedCount(parseInt(savedCompletedCount, 10));
+    }
   }, []);
 
   // Contadores Animados
@@ -93,6 +103,51 @@ export default function BusinessDashboard() {
 
     return () => { clearInterval(potTimer); clearInterval(activeTimer); };
   }, [bounties]);
+
+  // Auto-complete: Move tarefas "AI Reviewing" para Completed após 5 segundos
+  useEffect(() => {
+    const reviewingTasks = bounties.filter(b => b.status === 'AI Reviewing');
+    if (reviewingTasks.length === 0) return;
+
+    const timers: NodeJS.Timeout[] = [];
+
+    reviewingTasks.forEach(task => {
+      const timer = setTimeout(() => {
+        setBounties(prev => {
+          const updated = prev.map(b =>
+            b.id === task.id ? { ...b, status: 'Completed' as const, completedAt: Date.now() } : b
+          );
+          localStorage.setItem('autodot_bounties', JSON.stringify(updated));
+
+          // Incrementa contador de completados
+          setCompletedCount(count => {
+            const newCount = count + 1;
+            localStorage.setItem('autodot_completed_count', newCount.toString());
+            return newCount;
+          });
+
+          // Adiciona transação
+          addTransaction('Escrow Release', `${task.pot} POT`);
+
+          // Remove a tarefa completada após 3 segundos
+          setTimeout(() => {
+            setBounties(current => {
+              const filtered = current.filter(b => b.id !== task.id);
+              localStorage.setItem('autodot_bounties', JSON.stringify(filtered));
+              window.dispatchEvent(new Event('autodot_update'));
+              return filtered;
+            });
+          }, 3000);
+
+          return updated;
+        });
+      }, 5000);
+
+      timers.push(timer);
+    });
+
+    return () => timers.forEach(t => clearTimeout(t));
+  }, [bounties.filter(b => b.status === 'AI Reviewing').length]);
 
   // CRUD: Criar / Editar Escrow
   const handleDeployEscrow = (e: React.FormEvent) => {
@@ -242,7 +297,7 @@ export default function BusinessDashboard() {
           {[
             { label: "Total POT Locked", value: `${animatedPot.toLocaleString()} POT`, trend: "Secured in escrow", color: "text-[#F6C97D]" },
             { label: "Active Bounties", value: animatedActive, trend: "Live requirements", color: "text-white" },
-            { label: "Tasks Completed", value: bounties.filter(b => b.status === 'Completed').length, trend: "Merged autonomously", color: "text-green-400" },
+            { label: "Tasks Completed", value: completedCount, trend: "Merged autonomously", color: "text-green-400" },
             { label: "Avg. AI Review Time", value: "1.2s", trend: "Military-grade audit", color: "text-blue-400" }
           ].map((card, i) => (
             <div key={i} className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 backdrop-blur-xl hover:border-[#F6C97D]/20 transition-all">

@@ -184,7 +184,7 @@ export default function AutoDotPage() {
         description: taskDescription || "Bounty created from platform interface."
       };
       
-      setFeedItems(prev => [newItem, ...prev].slice(0, 4));
+      setFeedItems(prev => [newItem, ...prev]);
 
       // NOVO: Sincroniza essa tarefa criada no Workspace com o Dashboard!
       const saved = localStorage.getItem('autodot_bounties');
